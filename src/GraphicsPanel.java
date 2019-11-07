@@ -5,9 +5,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 public class GraphicsPanel extends JPanel {
     GraphicsFrame graphicsFrame;
+    // ~~~~~~~~ NEW CODE
+    Point start = null;
+    Point end = null;
 
     public GraphicsPanel(GraphicsFrame parentFrame) {
         graphicsFrame = parentFrame;
@@ -36,6 +40,9 @@ public class GraphicsPanel extends JPanel {
             public void mousePressed(MouseEvent e) {
                 graphicsFrame.mouseStateLabel.setText("Pressed");
                 graphicsFrame.mousePointLabel.setText(e.getX() + " " + e.getY());
+                // ~~~~~~~~ NEW CODE
+                // Saves their starting point
+                start = e.getPoint();
             }
 
             @Override
@@ -64,6 +71,11 @@ public class GraphicsPanel extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 graphicsFrame.mouseStateLabel.setText("Dragged");
                 graphicsFrame.mousePointLabel.setText(e.getX() + " " + e.getY());
+                // ~~~~~~~~ NEW CODE
+                // Keep track of where their mouse is as they drag
+                end = e.getPoint();
+                // Swing calls this when it's efficient to do so
+                repaint();
             }
 
             @Override
@@ -94,5 +106,20 @@ public class GraphicsPanel extends JPanel {
         Ellipse2D.Double ellipse = new Ellipse2D.Double(300, 300, 50, 50);
         g2.fill(ellipse);
 
+        // ~~~~~~~~ NEW CODE
+        // Draw a rectangle as the user drags
+        // x y for upper left corner
+        if (start != null) {
+            // We're going to construct a rectangle 2D.Double object
+            int x = start.x;
+            int y = start.y;
+            // Math.abs is used so we don't get a negative value if we drag the other way
+            int width = Math.abs(start.x - end.x);
+            int height = Math.abs(start.y - end.y);
+            // Now, draw the rectangle
+            Rectangle2D.Double rectangle = new Rectangle2D.Double(x, y, width, height);
+            g2.draw(rectangle);
+            // PA6 (likely): Keeps the drawn rectangles on the panel (right now, it disappears)
+        }
     }
 }
